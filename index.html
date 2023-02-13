@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="style.css" />
+        <title>Rock, paper, scissors</title>
+    </head>
+    <body id="body">
+        <h1>Rock, paper, scissors game!</h1>
+
+        <div class="form" id="initial-form">
+            <form>
+                <label for="player-one-name">
+                    <span>Player one name</span>
+                    <input type="text" id="player-one-name" required />
+                </label>
+
+                <br />
+
+                <label for="player-two-name">
+                    <span>Player two name</span>
+                    <input type="text" id="player-two-name" required />
+                </label>
+
+                <br /><br />
+
+                <input type="submit" id="start" value="Start game" />
+            </form>
+        </div>
+
+        <div class="game-page">
+            <h1 class="game-page__text"></h1>
+            <div class="game-page__elements-buttons">
+                <button
+                    class="game-page__button"
+                    id="rock-button"
+                    selected="false">
+                    <img src="./img/rock.jpg" alt="rock" />
+                </button>
+                <button
+                    class="game-page__button"
+                    id="paper-button"
+                    selected="false">
+                    <img src="./img/paper.jpg" alt="paper" />
+                </button>
+                <button
+                    class="game-page__button"
+                    id="scissor-button"
+                    selected="false">
+                    <img src="./img/scissors.jpg" alt="scissors" />
+                </button>
+            </div>
+
+            <button class="game-page__button__continue" id="continue-button">
+                Continue
+            </button>
+        </div>
+
+        <script src="app2.js"></script>
+    </body>
+</html>
