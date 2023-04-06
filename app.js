@@ -34,8 +34,8 @@ let playerTwo;
 let currentPlayer;
 let rounds = 3;
 let currentRound = 1;
-const items = ["rock", "paper", "scissors"];
-const winConditions = { rock: "scissors", paper: "rock", scissors: "paper" };
+const items = ["piedra", "papel", "tijera"];
+const winConditions = { piedra: "tijera", papel: "piedra", tijera: "papel" };
 
 btnStart.addEventListener("click", (e) => {
     e.preventDefault();
@@ -43,56 +43,44 @@ btnStart.addEventListener("click", (e) => {
 });
 
 rockButton.addEventListener("click", () => {
-    asignItemToPlayer(currentPlayer, "rock");
+    asignItemToPlayer(currentPlayer, "piedra");
     rockButton.setAttribute("selected", "true");
     paperButton.setAttribute("selected", "false");
     scissorsButton.setAttribute("selected", "false");
 });
 
 paperButton.addEventListener("click", () => {
-    asignItemToPlayer(currentPlayer, "paper");
+    asignItemToPlayer(currentPlayer, "papel");
     paperButton.setAttribute("selected", "true");
     rockButton.setAttribute("selected", "false");
     scissorsButton.setAttribute("selected", "false");
 });
 
 scissorsButton.addEventListener("click", () => {
-    asignItemToPlayer(currentPlayer, "scissors");
+    asignItemToPlayer(currentPlayer, "tijera");
     scissorsButton.setAttribute("selected", "true");
     rockButton.setAttribute("selected", "false");
     paperButton.setAttribute("selected", "false");
 });
 
-const asignItemToPlayer = (player, item) => (player.selectedItem = item);
+function asignItemToPlayer(player, item) {
+    player.selectedItem = item;
+}
 
-const determinateRoundResult = () => {
+function determinateRoundResult() {
     return playerOne.selectedItem === playerTwo.selectedItem
         ? "draw"
         : winConditions[playerOne.selectedItem] === playerTwo.selectedItem
         ? "player one won"
         : "player two won";
-};
-
-// Function to navegate trough the pages
-function* goToNextPage() {
-    let i = 0;
-
-    while (true) {
-        yield gamePages[i];
-        i++;
-        if (i === 3) i = 0;
-    }
 }
-
-const toNextPage = goToNextPage();
-let page;
 
 // Function that initializes the class Player and the nomber of rounds, then starts the game
 function startGame() {
     if (!isNaN(inputPlayerOneName.value) || !isNaN(inputPlayerOneName.value))
-        return alert("Enter valid names.");
+        return alert("Ingresa nombres válidos");
     if (inputPlayerOneName.value === "" || inputPlayerTwoName.value === "")
-        return alert("The name of both players is required.");
+        return alert("Se necesita el nombre de los dos jugadores");
 
     playerOne = new Player(inputPlayerOneName.value);
     playerTwo = new Player(inputPlayerTwoName.value);
@@ -102,14 +90,26 @@ function startGame() {
     play();
 }
 
+// Function to navegate trough the pages
+function* goToNextPage() {
+    let i = 0;
+    while (true) {
+        yield gamePages[i];
+        i++;
+        if (i === 3) i = 0;
+    }
+}
+
+const toNextPage = goToNextPage();
+let currentPage;
+
 function play() {
     if (
         currentRound > rounds ||
         playerOne.roundsWon > rounds / 2 ||
         playerTwo.roundsWon > rounds / 2
-    ) {
+    )
         return showResults();
-    }
 
     if (!document.querySelector(".game-page__elements-buttons")) {
         gamePage.insertBefore(gamePageElementsButtons, gamePage.children[1]);
@@ -120,39 +120,48 @@ function play() {
     paperButton.setAttribute("selected", "false");
 
     continueButton.addEventListener("click", continueButtonHandle);
-    page = toNextPage.next().value;
 
-    if (page === "playerOneChoose") {
+    const announcements = {
+        playerOneChoose: `Round ${currentRound}/${rounds}<br><br>${playerOne.name} elige:`,
+        playerTwoChoose: `Round ${currentRound}/${rounds} <br><br>${playerTwo.name} elige:`,
+        showItemsSelected: `${playerOne.name} eligió ${playerOne.selectedItem}<br>${playerTwo.name} eligió ${playerTwo.selectedItem}`,
+        playerOneWon: `<br><br>El ganador de este round es ${playerOne.name}`,
+        playerTwoWon: `<br><br>El ganador de este round es ${playerTwo.name}`,
+        draw: `<br><br>Este round terminó en empate por lo tanto debe repetirse.<br><br>`,
+    };
+
+    currentPage = toNextPage.next().value;
+
+    if (currentPage === "playerOneChoose") {
         currentPlayer = playerOne;
-        gamePageText.innerHTML = `Round ${currentRound}/${rounds}<br><br>${playerOne.name} choose:`;
-    } else if (page === "playerTwoChoose") {
+        gamePageText.innerHTML = announcements.playerOneChoose;
+    } else if (currentPage === "playerTwoChoose") {
         currentPlayer = playerTwo;
-        gamePageText.innerHTML = `Round ${currentRound}/${rounds} <br><br>${playerTwo.name} choose:`;
+        gamePageText.innerHTML = announcements.playerTwoChoose;
     } else {
-        gamePageText.innerHTML = `${playerOne.name} chose ${playerOne.selectedItem}<br>${playerTwo.name} chose ${playerTwo.selectedItem}`;
+        gamePageText.innerHTML = announcements.showItemsSelected;
 
         const roundResult = determinateRoundResult();
         gamePageElementsButtons.remove();
 
         if (roundResult === "player one won") {
             playerOne.roundsWon++;
-            gamePageText.innerHTML += `<br><br>The winner of the round is ${playerOne.name}`;
+            gamePageText.innerHTML += announcements.playerOneWon;
             currentRound++;
         } else if (roundResult === "player two won") {
             playerTwo.roundsWon++;
-            gamePageText.innerHTML += `<br><br>The winner of the round is ${playerTwo.name}`;
+            gamePageText.innerHTML += announcements.playerTwoWon;
             currentRound++;
         } else {
-            gamePageText.innerHTML +=
-                "<br><br>There was a draw im this round.<br>>br>Repeat it";
+            gamePageText.innerHTML += announcements.draw;
         }
     }
 }
 
 function showResults() {
     playerOne.roundsWon > playerTwo.roundsWon
-        ? (gamePageText.innerHTML = `${playerOne.name} won ${playerOne.roundsWon} to ${playerTwo.roundsWon}`)
-        : (gamePageText.innerHTML = `${playerTwo.name} won ${playerTwo.roundsWon} to ${playerOne.roundsWon}`);
+        ? (gamePageText.innerHTML = `${playerOne.name} ganó ${playerOne.roundsWon} a ${playerTwo.roundsWon}`)
+        : (gamePageText.innerHTML = `${playerTwo.name} ganó ${playerTwo.roundsWon} a ${playerOne.roundsWon}`);
 
     gameFinished = true;
     continueButton.innerHTML = "Reset";
@@ -172,17 +181,15 @@ function reset() {
 }
 
 function continueButtonHandle() {
-    if (gameFinished) {
-        return reset();
-    }
+    if (gameFinished) return reset();
 
     if (
-        page !== "seeRoundResults" &&
+        currentPage !== "seeRoundResults" &&
         scissorsButton.getAttribute("selected") === "false" &&
         paperButton.getAttribute("selected") === "false" &&
         rockButton.getAttribute("selected") === "false"
     ) {
-        return alert("You must choose one item");
+        return alert("Debes elegir un item");
     }
 
     return play();
